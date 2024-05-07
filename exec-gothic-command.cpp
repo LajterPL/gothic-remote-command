@@ -1,7 +1,11 @@
 #include <Windows.h>
 #include <WinUser.h>
 #include <winerror.h>
+
 #include <stdio.h>
+#include <iostream>
+#include <string>
+#include <tchar.h>
 
 int upper_case_char_diff = 'a' - 'A';
 
@@ -17,7 +21,7 @@ void pressKey(WORD key) {
     UINT uSent = SendInput(1, inputs, sizeof(INPUT));
     if (uSent != 1)
     {
-        printf("pressKey failed: 0x%x\n", HRESULT_FROM_WIN32(GetLastError()));
+        printf("pressKey failed: 0x%d\n", HRESULT_FROM_WIN32(GetLastError()));
     }
 }
 
@@ -128,7 +132,30 @@ void writeCommand( char *command[], int size) {
     
 }
 
+bool isGothicOpen() {
+    HWND handle = GetForegroundWindow();
+    int bufsize = GetWindowTextLength(handle);
+    std::basic_string<TCHAR>  title(bufsize, 0);
+    GetWindowText(handle, &title[0], bufsize + 1);
+
+    return title.find(_T("Gothic")) != std::string::npos;
+}
+
 int main(int argc, char *argv[]) {
-    
-    writeCommand(argv+1, argc-1);
+
+    isGothicOpen();
+
+    while(true) {
+        if (isGothicOpen()) {
+            printf("Gothic otwarty...");
+
+            if (argc > 1) {
+                writeCommand(argv+1, argc-1);
+            }
+
+            return 0;   
+        }
+
+        Sleep(1000);
+    }
 }
